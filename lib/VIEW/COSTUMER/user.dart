@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:ecomerceapp/VIEW/COSTUMER/auth/LoginScreen.dart';
 import 'package:ecomerceapp/VIEW/COSTUMER/deatil_produk.dart';
 import 'package:ecomerceapp/VIEW/COSTUMER/history/HistoryScreen.dart';
 import 'package:ecomerceapp/VIEW/COSTUMER/keranjang.dart';
@@ -24,6 +25,7 @@ class _UserViewState extends State<UserView> {
   final List<String> dropdownItems = [
     'Profile',
     'Order History',
+    'Log Out',
   ];
   String? selectedDropdownItem;
 
@@ -73,6 +75,8 @@ class _UserViewState extends State<UserView> {
                           Get.to(ProfileScreen());
                         } else if (selectedDropdownItem == 'Order History') {
                           Get.to(HistoryScreen());
+                        }else if (selectedDropdownItem == 'Log Out') {
+                          Get.to(LoginScreen());
                         }
                       },
                       itemBuilder: (BuildContext context) {

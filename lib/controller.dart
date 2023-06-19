@@ -1,15 +1,19 @@
 import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:crypto/crypto.dart';
+import 'package:ecomerceapp/ADMIN/KASIR/kasir.dart';
+import 'package:ecomerceapp/DRIVER/DriverHome.dart';
 import 'package:ecomerceapp/VIEW/COSTUMER/auth/LoginScreen.dart';
 import 'package:ecomerceapp/VIEW/COSTUMER/cekout_screen.dart';
 import 'package:ecomerceapp/VIEW/COSTUMER/user.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
-
 import 'VIEW/COSTUMER/util/SharedPrefManager.dart';
+import 'dart:io';
+
 
 class Controllersr extends GetxController {
   FirebaseStorage storage = FirebaseStorage.instance;
@@ -18,7 +22,7 @@ class Controllersr extends GetxController {
   RxInt jumlah_produk = 0.obs;
   RxList<Order> orders = <Order>[].obs;
   void registerUser(
-      String idUser, String nama, String userName, String password) async {
+      String idUser, String nama, String userName, String password, String role) async {
     final passwordHash = sha256.convert(utf8.encode(password)).toString();
     firestore
         .collection("Toko")
@@ -29,6 +33,7 @@ class Controllersr extends GetxController {
       "nama": nama,
       "userName": userName,
       "password": passwordHash,
+      "role":role,
       "time": DateFormat('dd-MM-yyyy').format(DateTime.now()).toString()
     });
     Get.snackbar('Sukses', 'Register Berhasil',
@@ -50,13 +55,26 @@ class Controllersr extends GetxController {
         .get()
         .then((querySnapshot) {
       if (querySnapshot.size > 0) {
-        print('Berhasil login!');
+        String role = querySnapshot.docs[0].data()['role'].toString();
         saveUserId(querySnapshot.docs[0].data()['idUser'].toString());
         saveUserData(
             querySnapshot.docs[0].data()['idUser'].toString(),
             querySnapshot.docs[0].data()['userName'].toString(),
             querySnapshot.docs[0].data()['nama'].toString());
-        Get.off(UserView());
+
+        if (role == 'user') {
+          Get.off(UserView());
+        } else if (role == 'admin') {
+          Get.off(Kasir());
+        } else if (role == 'driver') {
+          Get.off(DriverHome());
+        } else {
+          // Peran tidak valid
+          Get.snackbar('Gagal', 'Peran pengguna tidak valid',
+              backgroundColor: Colors.white38,
+              borderRadius: 20,
+              colorText: Colors.black);
+        }
       } else {
         Get.snackbar('Gagal', 'UserName dan Password Salah',
             backgroundColor: Colors.white38,
@@ -67,6 +85,7 @@ class Controllersr extends GetxController {
       print('Gagal melakukan login: $error');
     });
   }
+
 
   Stream<QuerySnapshot<Map<String, dynamic>>> produk() {
     var data = firestore
@@ -127,7 +146,7 @@ class Controllersr extends GetxController {
   }
 
   void cekout(String userId, String username, List id, List namap, List harga,
-      List total, String totalS, String takeAway, String payment) {
+      List total, String totalS, String takeAway, String payment, String ongkir, String alamat, String kecamatan) {
     DateTime newDate = DateTime.now();
     Duration menit = Duration(minutes: 60);
     var a = newDate.add(menit);
@@ -148,7 +167,11 @@ class Controllersr extends GetxController {
       "take": takeAway,
       "payment": payment,
       "jam": DateFormat('HH:mm').format(a).toString(),
-      'status': 'BELUM DI BAYAR'
+      'status': 'BELUM DI BAYAR',
+      "ongkir" : ongkir,
+      "alamat": alamat,
+      "kecamatan": kecamatan,
+      "driverStatus":''
     }).then((value) {
       Get.off(Cekout(), arguments: {"id": value.id, "totals": totalS});
       saveIdHistory(value.id, totalS);
@@ -228,6 +251,135 @@ class Controllersr extends GetxController {
         .collection('keranjang');
     return data.snapshots();
   }
+
+  final imagePicker = ImagePicker();
+  XFile? pickedImage = null;
+  RxString image = "".obs;
+
+  void selectedImageGalery() async {
+    try {
+      final cekFoto = await imagePicker.pickImage(
+          source: ImageSource.gallery, imageQuality: 60);
+      if (cekFoto != null) {
+        pickedImage = cekFoto;
+      }
+      update();
+    } catch (e) {
+      pickedImage = null;
+      update();
+    }
+  }
+
+  void resetImage() {
+    pickedImage = null;
+    update();
+  }
+
+  Future<String?> uploadImage(String uid) async {
+    Reference storageRef = storage.ref("$uid.png");
+    File file = File(pickedImage!.path);
+    try {
+      await storageRef.putFile(file);
+      final photoUrl = await storageRef.getDownloadURL();
+      await RxStatus.loading();
+      resetImage();
+      image(photoUrl);
+      return photoUrl;
+    } catch (e) {
+      Get.snackbar('Gagal', 'periksa koneksi Internet anda',
+          backgroundColor: Colors.grey,
+          borderRadius: 20,
+          colorText: Colors.red);
+      return null;
+    }
+  }
+
+  void tambah_produk(
+      String deskripsi, String harga, String image, String nama) async {
+    firestore
+        .collection("Toko")
+        .doc('ug72tF0uJnIyyLI2a6xX')
+        .collection('produk')
+        .add({
+      "deskripsi_produk": deskripsi,
+      "harga": harga,
+      "image": image,
+      "nama": nama,
+      "time": DateFormat('dd-MM-yyyy').format(DateTime.now()).toString()
+    });
+    Get.back();
+  }
+
+  Stream<QuerySnapshot<Map<String, dynamic>>> get_order_kasir() {
+    var data = firestore
+        .collection("Toko")
+        .doc('ug72tF0uJnIyyLI2a6xX')
+        .collection('order')
+        .orderBy("tgl_order", descending: true);
+    return data.snapshots();
+  }
+
+  void update_pesanan(String id) {
+    firestore
+        .collection("Toko")
+        .doc('ug72tF0uJnIyyLI2a6xX')
+        .collection('order')
+        .doc(id)
+        .update({"status": 'SUDAH DI BAYAR', "selesai": id.toString()});
+  }
+
+  void update_diver(String id) {
+    firestore
+        .collection("Toko")
+        .doc('ug72tF0uJnIyyLI2a6xX')
+        .collection('order')
+        .doc(id)
+        .update({"driverStatus": 'diantar'});
+  }
+
+  void update_divernew(String id) {
+    firestore
+        .collection("Toko")
+        .doc('ug72tF0uJnIyyLI2a6xX')
+        .collection('order')
+        .doc(id)
+        .update({"driverStatus": 'sudah diantar'});
+  }
+
+  Stream<QuerySnapshot<Map<String, dynamic>>> getOrderKurir() {
+    return FirebaseFirestore.instance
+        .collection('Toko')
+        .doc('ug72tF0uJnIyyLI2a6xX')
+        .collection('order')
+        .where('status', isEqualTo: 'SUDAH DI BAYAR')
+        .snapshots();
+  }
+
+  void hapus_pesanan(String id) {
+    firestore
+        .collection("Toko")
+        .doc('ug72tF0uJnIyyLI2a6xX')
+        .collection('order')
+        .doc(id)
+        .delete();
+  }
+
+  void hapus_produk(String id, String url) async {
+    firestore
+        .collection("Toko")
+        .doc('ug72tF0uJnIyyLI2a6xX')
+        .collection('produk')
+        .doc(id)
+        .delete();
+    await FirebaseStorage.instance.refFromURL(url).delete();
+    firestore
+        .collection("Toko")
+        .doc('ug72tF0uJnIyyLI2a6xX')
+        .collection('keranjang')
+        .doc(id)
+        .delete();
+  }
+
 }
 
 class Order {

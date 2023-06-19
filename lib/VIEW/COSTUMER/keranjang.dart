@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ecomerceapp/VIEW/COSTUMER/deatil_produk.dart';
+import 'package:ecomerceapp/VIEW/COSTUMER/util/Province.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -17,6 +18,7 @@ final c = Get.put(Controllersr());
 
 class _KeranjangState extends State<Keranjang> {
   TextEditingController nama = TextEditingController();
+  TextEditingController alamat = TextEditingController();
   RxInt jumlah = 1.obs;
   List cekout = [].obs;
   List namap = [].obs;
@@ -343,10 +345,12 @@ class _KeranjangState extends State<Keranjang> {
                       RxBool dine_in = false.obs;
                       RxString takeAway = 'DineIn'.obs;
                       RxString metodePembayaran = 'COD'.obs;
-                      Get.bottomSheet(Container(
+                      Get.bottomSheet(
+                          isScrollControlled: true,
+                          Container(
                         padding:
                             EdgeInsets.symmetric(vertical: 10, horizontal: 5),
-                        height: 310,
+                        height: 440,
                         width: Get.width,
                         decoration: BoxDecoration(
                             color: Colors.white,
@@ -434,10 +438,10 @@ class _KeranjangState extends State<Keranjang> {
                                           dine_in.isFalse
                                               ? dine_in(true)
                                               : dine_in(false);
-                                          takeAway('TakeAway');
+                                          takeAway('Delivery');
                                         },
                                         child: Text(
-                                          'TakeAway',
+                                          'Delivery',
                                           style: TextStyle(
                                               fontSize: 12,
                                               color: Colors.grey,
@@ -525,7 +529,40 @@ class _KeranjangState extends State<Keranjang> {
                                   ),
                                 ],
                               ),
-                              Expanded(child: SizedBox()),
+
+                              TextField(
+                                controller: alamat,
+                                decoration: InputDecoration(
+                                  hintText: 'Alamat Lengkap',
+                                  hintStyle: TextStyle(fontSize: 16),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(15),
+                                    borderSide: BorderSide(
+                                      width: 0,
+                                      style: BorderStyle.none,
+                                    ),
+                                  ),
+                                  filled: true,
+                                  fillColor: Colors.grey[200],
+                                  contentPadding: EdgeInsets.all(10),
+                                ),
+                              ),
+
+                              SizedBox(height: 10),
+                              Padding(
+                                  padding: const EdgeInsets.only(left: 10, bottom: 10),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    crossAxisAlignment:
+                                    CrossAxisAlignment.start,
+                                    children: [
+                                      Text("Pilih Ongkir (Sesuai Provinsi)"),
+                                    ],
+                                  )),
+                              MyDropdown(),
+
+                              SizedBox(height: 10),
+
                               ElevatedButton(
                                 onPressed: () {
                                   if (nama.text == '') {
@@ -546,7 +583,10 @@ class _KeranjangState extends State<Keranjang> {
                                         totalharga.toList(),
                                         total.toString(),
                                         takeAway.value,
-                                        metodePembayaran.value
+                                        metodePembayaran.value,
+                                        selectedProvince?.price.toString() ?? '',
+                                        alamat.text,
+                                        selectedProvince?.name ?? '',
                                     );
                                     nama.clear();
                                   }

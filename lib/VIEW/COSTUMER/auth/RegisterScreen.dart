@@ -89,7 +89,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               uuid.v1(),
                               nameController.text,
                               userNameController.text,
-                              passwordController.text);
+                              passwordController.text,
+                            "user"
+                          );
                           Isloading(false);
                         });
                       },
