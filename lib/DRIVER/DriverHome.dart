@@ -97,7 +97,26 @@ class _DriverHomeState extends State<DriverHome> {
               itemCount: data.length,
               itemBuilder: (context, index) {
                 DateTime now = DateTime.parse('${data[index]['tgl_order']}');
-                String buttonText = '${data[index]['driverStatus']}' == '' ? 'Antar Pesanan' : 'Sudah di Antar';
+                String driverStatus = data[index]['driverStatus'];
+                String buttonText = '';
+                Color buttonColor;
+
+                if (driverStatus == '') {
+                  buttonText = 'Antar Sekarang';
+                  buttonColor = Colors.red;
+                }else if (driverStatus == 'diantar') {
+                  buttonText = 'Sudah di Antar';
+                  buttonColor = Colors.orange;
+                } else if (driverStatus == 'sudah diantar') {
+                  buttonText = 'Selesai';
+                  buttonColor = Colors.lightGreen;
+                } else if (driverStatus == 'selesai') {
+                  buttonText = 'Orderan Selesai';
+                  buttonColor = Colors.lightGreen;
+                } else {
+                  buttonText = driverStatus;
+                  buttonColor = Colors.grey;
+                }
                 var formatter = DateFormat('dd-MM-yyyy');
                 var formatted = formatter.format(now);
                 return InkWell(
@@ -184,7 +203,7 @@ class _DriverHomeState extends State<DriverHome> {
                             MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                'PROVINSI',
+                                'KECAMATAN',
                                 style: TextStyle(
                                     color: Colors.grey,
                                     fontSize: 10,
@@ -205,21 +224,25 @@ class _DriverHomeState extends State<DriverHome> {
                             children: [
                               ElevatedButton(
                                 onPressed: () {
-                                  if (buttonText == 'Antar Pesanan') {
-                                    print("RUN 1");
+                                  if (buttonText == 'Antar Sekarang') {
                                     c.update_diver('${data[index].id}');
                                   } else if (buttonText == 'Sudah di Antar') {
-                                    print("RUN 2");
                                     c.update_divernew('${data[index].id}');
+                                    setState(() {
+                                      buttonText = 'Selesai';
+                                    });
+                                  } else if (buttonText == 'Selesai') {
+                                    c.update_divernew2('${data[index].id}');
                                   }
                                 },
                                 child: Text(
-                                  '${data[index]['driverStatus']}' == '' ? 'Antar Pesanan' : 'Sudah di Antar',
+                                  buttonText,
                                   style: TextStyle(fontSize: 10),
                                 ),
+
                                 style: ElevatedButton.styleFrom(
                                   fixedSize: Size(Get.width / 2.5, 45),
-                                  primary: Colors.lightGreen,
+                                  primary: buttonColor,
                                   onPrimary: Colors.white,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(10),

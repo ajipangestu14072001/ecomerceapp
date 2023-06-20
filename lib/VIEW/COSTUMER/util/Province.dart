@@ -50,7 +50,7 @@ class _MyDropdownState extends State<MyDropdown> {
         });
       },
       decoration: InputDecoration(
-        labelText: 'Pilih Provinsi',
+        labelText: 'Pilih Kecamatan',
         border: OutlineInputBorder(),
         contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 12),
         isDense: true,

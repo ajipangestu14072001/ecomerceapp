@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../controller.dart';
 import '../cekout_screen.dart';
@@ -15,10 +16,23 @@ class HistoryScreen extends StatefulWidget {
 class _HistoryScreenState extends State<HistoryScreen> {
   final Controllersr controller = Get.find<Controllersr>();
 
+  late String userId;
+
+  void getUserIdFromSharedPrefs() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? storedUserId = prefs.getString('userId');
+    setState(() {
+      userId = storedUserId ?? '';
+    });
+  }
+
   @override
   void initState() {
     super.initState();
-    controller.getOrderDataByUserId('7d21dd40-0a8a-11ee-9e97-29f8474f6d8b');
+    getUserIdFromSharedPrefs();
+    Future.delayed(Duration(seconds: 4), () async {
+      controller.getOrderDataByUserId(userId);
+    });
   }
 
   @override

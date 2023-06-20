@@ -27,6 +27,7 @@ class _KeranjangState extends State<Keranjang> {
   RxInt total = 0.obs;
   late String userId;
 
+
   void getUserIdFromSharedPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? storedUserId = prefs.getString('userId');
@@ -342,22 +343,23 @@ class _KeranjangState extends State<Keranjang> {
                 ElevatedButton(
                   onPressed: () {
                     if (total.value != 0) {
-                      RxBool dine_in = false.obs;
                       RxString takeAway = 'DineIn'.obs;
                       RxString metodePembayaran = 'COD'.obs;
+                      RxBool isDropdownVisible = false.obs;
                       Get.bottomSheet(
-                          isScrollControlled: true,
-                          Container(
-                        padding:
-                            EdgeInsets.symmetric(vertical: 10, horizontal: 5),
-                        height: 440,
-                        width: Get.width,
-                        decoration: BoxDecoration(
+                        isScrollControlled: true,
+                        Container(
+                          padding: EdgeInsets.symmetric(vertical: 10, horizontal: 5),
+                          height: 470,
+                          width: Get.width,
+                          decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.only(
-                                topLeft: Radius.circular(10),
-                                topRight: Radius.circular(10))),
-                        child: Column(
+                              topLeft: Radius.circular(10),
+                              topRight: Radius.circular(10),
+                            ),
+                          ),
+                          child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Row(
@@ -371,9 +373,10 @@ class _KeranjangState extends State<Keranjang> {
                                   Text(
                                     'Masukan nama anda untuk melanjutkan cekout',
                                     style: TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.grey,
-                                        fontWeight: FontWeight.w600),
+                                      fontSize: 12,
+                                      color: Colors.grey,
+                                      fontWeight: FontWeight.w600,
+                                    ),
                                   ),
                                 ],
                               ),
@@ -394,8 +397,7 @@ class _KeranjangState extends State<Keranjang> {
                                   fillColor: Colors.grey[200],
                                   contentPadding: EdgeInsets.all(10),
                                   prefixIcon: Padding(
-                                    padding: EdgeInsets.only(
-                                        left: 24.0, right: 16.0),
+                                    padding: EdgeInsets.only(left: 24.0, right: 16.0),
                                     child: Icon(
                                       Icons.person,
                                       color: Colors.black,
@@ -408,61 +410,84 @@ class _KeranjangState extends State<Keranjang> {
                               Row(
                                 children: [
                                   SizedBox(
-                                    width: 150,
+                                    width: 120,
                                     child: Obx(
-                                      () => CheckboxMenuButton(
-                                        value: dine_in.isTrue ? false : true,
+                                          () => RadioListTile<String>(
+                                        contentPadding: EdgeInsets.symmetric(horizontal: 0.0),
+                                        value: 'DineIn',
+                                        groupValue: takeAway.value,
                                         onChanged: (value) {
-                                          dine_in.isTrue
-                                              ? dine_in(false)
-                                              : dine_in(true);
-                                          takeAway('DineIn');
-                                          print(value);
+                                          takeAway.value = value!;
+                                          isDropdownVisible.value = false;
                                         },
-                                        child: Text(
+                                        title: Text(
                                           'DineIn',
                                           style: TextStyle(
-                                              fontSize: 12,
-                                              color: Colors.grey,
-                                              fontWeight: FontWeight.w600),
+                                            fontSize: 11,
+                                            color: Colors.grey,
+                                            fontWeight: FontWeight.w600,
+                                          ),
                                         ),
                                       ),
                                     ),
                                   ),
                                   SizedBox(
-                                    width: 150,
+                                    width: 120,
                                     child: Obx(
-                                      () => CheckboxMenuButton(
-                                        value: dine_in.value,
+                                          () => RadioListTile<String>(
+                                        contentPadding: EdgeInsets.symmetric(horizontal: 0.0),
+                                        value: 'TakeAway',
+                                        groupValue: takeAway.value,
                                         onChanged: (value) {
-                                          dine_in.isFalse
-                                              ? dine_in(true)
-                                              : dine_in(false);
-                                          takeAway('Delivery');
+                                          takeAway.value = value!;
+                                          isDropdownVisible.value = false;
                                         },
-                                        child: Text(
-                                          'Delivery',
+                                        title: Text(
+                                          'TakeAway',
                                           style: TextStyle(
-                                              fontSize: 12,
-                                              color: Colors.grey,
-                                              fontWeight: FontWeight.w600),
+                                            fontSize: 11,
+                                            color: Colors.grey,
+                                            fontWeight: FontWeight.w600,
+                                          ),
                                         ),
                                       ),
                                     ),
-                                  )
+                                  ),
+                                  SizedBox(
+                                    width: 120,
+                                    child: Obx(
+                                          () => RadioListTile<String>(
+                                        contentPadding: EdgeInsets.symmetric(horizontal: 0.0),
+                                        value: 'Delivery',
+                                        groupValue: takeAway.value,
+                                        onChanged: (value) {
+                                          takeAway.value = value!;
+                                          isDropdownVisible.value = (value == 'Delivery');
+                                        },
+                                        title: Text(
+                                          'Delivery',
+                                          style: TextStyle(
+                                            fontSize: 11,
+                                            color: Colors.grey,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
                                 ],
                               ),
                               SizedBox(height: 10),
                               Padding(
-                                  padding: const EdgeInsets.only(left: 10),
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text("Metode Pembayaran"),
-                                    ],
-                                  )),
+                                padding: const EdgeInsets.only(left: 10),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text("Metode Pembayaran"),
+                                  ],
+                                ),
+                              ),
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -470,7 +495,8 @@ class _KeranjangState extends State<Keranjang> {
                                   SizedBox(
                                     width: 120,
                                     child: Obx(
-                                      () => RadioListTile<String>(
+                                          () => RadioListTile<String>(
+                                        contentPadding: EdgeInsets.zero,
                                         value: 'COD',
                                         groupValue: metodePembayaran.value,
                                         onChanged: (value) {
@@ -490,7 +516,8 @@ class _KeranjangState extends State<Keranjang> {
                                   SizedBox(
                                     width: 120,
                                     child: Obx(
-                                      () => RadioListTile<String>(
+                                          () => RadioListTile<String>(
+                                        contentPadding: EdgeInsets.zero,
                                         value: 'OVO',
                                         groupValue: metodePembayaran.value,
                                         onChanged: (value) {
@@ -510,7 +537,8 @@ class _KeranjangState extends State<Keranjang> {
                                   SizedBox(
                                     width: 120,
                                     child: Obx(
-                                      () => RadioListTile<String>(
+                                          () => RadioListTile<String>(
+                                        contentPadding: EdgeInsets.zero,
                                         value: 'Dana',
                                         groupValue: metodePembayaran.value,
                                         onChanged: (value) {
@@ -529,86 +557,102 @@ class _KeranjangState extends State<Keranjang> {
                                   ),
                                 ],
                               ),
-
-                              TextField(
-                                controller: alamat,
-                                decoration: InputDecoration(
-                                  hintText: 'Alamat Lengkap',
-                                  hintStyle: TextStyle(fontSize: 16),
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(15),
-                                    borderSide: BorderSide(
-                                      width: 0,
-                                      style: BorderStyle.none,
-                                    ),
-                                  ),
-                                  filled: true,
-                                  fillColor: Colors.grey[200],
-                                  contentPadding: EdgeInsets.all(10),
+                              AnimatedSwitcher(
+                                duration: Duration(milliseconds: 200),
+                                child: Obx(
+                                      () => isDropdownVisible.value
+                                      ? Column(
+                                    children: [
+                                      TextField(
+                                        controller: alamat,
+                                        decoration: InputDecoration(
+                                          hintText: 'Alamat Lengkap',
+                                          hintStyle: TextStyle(fontSize: 16),
+                                          border: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(15),
+                                            borderSide: BorderSide(
+                                              width: 0,
+                                              style: BorderStyle.none,
+                                            ),
+                                          ),
+                                          filled: true,
+                                          fillColor: Colors.grey[200],
+                                          contentPadding: EdgeInsets.all(10),
+                                        ),
+                                      ),
+                                      SizedBox(height: 10),
+                                      Padding(
+                                        padding: const EdgeInsets.only(left: 10, bottom: 10),
+                                        child: Column(
+                                          mainAxisAlignment: MainAxisAlignment.start,
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text("Pilih Ongkir (Sesuai Kecamatan)"),
+                                          ],
+                                        ),
+                                      ),
+                                      MyDropdown(),
+                                    ],
+                                  )
+                                      : SizedBox.shrink(),
                                 ),
                               ),
-
                               SizedBox(height: 10),
-                              Padding(
-                                  padding: const EdgeInsets.only(left: 10, bottom: 10),
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    crossAxisAlignment:
-                                    CrossAxisAlignment.start,
-                                    children: [
-                                      Text("Pilih Ongkir (Sesuai Provinsi)"),
-                                    ],
-                                  )),
-                              MyDropdown(),
-
-                              SizedBox(height: 10),
-
                               ElevatedButton(
                                 onPressed: () {
                                   if (nama.text == '') {
-                                    Get.snackbar(
-                                        '', 'isi nama anda terlebih dahulu',
+                                    Get.snackbar('', 'isi nama anda terlebih dahulu',
                                         titleText: Text(
                                           'peringatan',
                                           style: TextStyle(color: Colors.red),
                                         ));
                                   } else if (takeAway.value == '') {
+                                    // Aksi yang ingin Anda lakukan jika `takeAway.value` kosong
                                   } else {
                                     c.cekout(
-                                        userId,
-                                        nama.text,
-                                        cekout.toList(),
-                                        namap.toList(),
-                                        harga.toList(),
-                                        totalharga.toList(),
-                                        total.toString(),
-                                        takeAway.value,
-                                        metodePembayaran.value,
-                                        selectedProvince?.price.toString() ?? '',
-                                        alamat.text,
-                                        selectedProvince?.name ?? '',
+                                      userId,
+                                      nama.text,
+                                      cekout.toList(),
+                                      namap.toList(),
+                                      harga.toList(),
+                                      totalharga.toList(),
+                                      total.toString(),
+                                      takeAway.value,
+                                      metodePembayaran.value,
+                                      selectedProvince?.price.toString() ?? '',
+                                      alamat.text,
+                                      selectedProvince?.name ?? '',
                                     );
                                     nama.clear();
                                   }
                                 },
                                 child: Text('konfirmasi'),
                                 style: ElevatedButton.styleFrom(
-                                    fixedSize: Size(Get.width, 50),
-                                    backgroundColor: Colors.red),
+                                  fixedSize: Size(Get.width, 50),
+                                  backgroundColor: Colors.red,
+                                ),
                               ),
-                            ]),
-                      ));
-                    } else {}
+                            ],
+                          ),
+                        ),
+                      );
+                    } else {
+                      // Aksi yang ingin Anda lakukan jika `total.value` adalah 0
+                    }
                   },
                   child: Text('CekOut'),
                   style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.orange,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(10),
-                              topRight: Radius.circular(10))),
-                      fixedSize: Size(Get.width, 60)),
+                    backgroundColor: Colors.orange,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(10),
+                        topRight: Radius.circular(10),
+                      ),
+                    ),
+                    fixedSize: Size(Get.width, 60),
+                  ),
                 ),
+
               ],
             ),
           )

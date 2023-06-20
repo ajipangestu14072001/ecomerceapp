@@ -45,6 +45,27 @@ class _PesananState extends State<Pesanan> {
                           DateTime.parse('${data[index]['tgl_order']}');
                       var formatter = DateFormat('dd-MM-yyyy');
                       var formatted = formatter.format(now);
+                      String driverStatus = data[index]['driverStatus'];
+                      Color buttonColor;
+
+                      String buttonText = '';
+
+                      if (driverStatus == '') {
+                        buttonText = 'Terima Order';
+                        buttonColor = Colors.grey;
+                      }else if (driverStatus == 'diantar') {
+                        buttonText = 'Diantar Driver';
+                        buttonColor = Colors.red;
+                      } else if (driverStatus == 'sudah diantar') {
+                        buttonText = 'Diantar Driver';
+                        buttonColor = Colors.orange;
+                      } else if (driverStatus == 'selesai') {
+                        buttonText = 'Orderan Selesai';
+                        buttonColor = Colors.lightGreen;
+                      } else {
+                        buttonText = driverStatus;
+                        buttonColor = Colors.grey;
+                      }
                       return InkWell(
                         onTap: () {
                           Get.to(StrukPesanan(),
@@ -128,7 +149,7 @@ class _PesananState extends State<Pesanan> {
                                   MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text(
-                                      'PROVINSI',
+                                      'KECAMATAN',
                                       style: TextStyle(
                                           color: Colors.grey,
                                           fontSize: 10,
@@ -153,12 +174,12 @@ class _PesananState extends State<Pesanan> {
                                           c.update_pesanan('${data[index].id}');
                                         },
                                         child: Text(
-                                          'tandai sebagai selesai',
+                                            buttonText,
                                           style: TextStyle(fontSize: 10),
                                         ),
                                         style: ElevatedButton.styleFrom(
                                           fixedSize: Size(Get.width / 2.5, 45),
-                                          primary: Colors.lightGreen,
+                                          primary: buttonColor,
                                           onPrimary: Colors.white,
                                           shape: RoundedRectangleBorder(
                                             borderRadius: BorderRadius.circular(10),

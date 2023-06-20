@@ -171,7 +171,8 @@ class Controllersr extends GetxController {
       "ongkir" : ongkir,
       "alamat": alamat,
       "kecamatan": kecamatan,
-      "driverStatus":''
+      "driverStatus":'',
+      "diterimaAdmin":'false'
     }).then((value) {
       Get.off(Cekout(), arguments: {"id": value.id, "totals": totalS});
       saveIdHistory(value.id, totalS);
@@ -325,7 +326,7 @@ class Controllersr extends GetxController {
         .doc('ug72tF0uJnIyyLI2a6xX')
         .collection('order')
         .doc(id)
-        .update({"status": 'SUDAH DI BAYAR', "selesai": id.toString()});
+        .update({"status": 'SUDAH DI BAYAR', "selesai": id.toString(), "diterimaAdmin": 'true'});
   }
 
   void update_diver(String id) {
@@ -346,12 +347,22 @@ class Controllersr extends GetxController {
         .update({"driverStatus": 'sudah diantar'});
   }
 
+  void update_divernew2(String id) {
+    firestore
+        .collection("Toko")
+        .doc('ug72tF0uJnIyyLI2a6xX')
+        .collection('order')
+        .doc(id)
+        .update({"driverStatus": 'selesai'});
+  }
+
   Stream<QuerySnapshot<Map<String, dynamic>>> getOrderKurir() {
     return FirebaseFirestore.instance
         .collection('Toko')
         .doc('ug72tF0uJnIyyLI2a6xX')
         .collection('order')
         .where('status', isEqualTo: 'SUDAH DI BAYAR')
+        // .orderBy('jam', descending: true)
         .snapshots();
   }
 

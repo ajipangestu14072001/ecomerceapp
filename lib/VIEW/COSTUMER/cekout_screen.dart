@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ecomerceapp/VIEW/COSTUMER/history/HistoryScreen.dart';
 import 'package:ecomerceapp/VIEW/COSTUMER/pdf/PdfHelper.dart';
+import 'package:ecomerceapp/VIEW/COSTUMER/user.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -321,7 +322,7 @@ class _CekoutState extends State<Cekout> {
                                   ),
                                   ElevatedButton(
                                     onPressed: () {
-                                      Get.off(HistoryScreen());
+                                      Get.off(UserView());
                                     },
                                     child: Text('Kembali'),
                                     style: ElevatedButton.styleFrom(
